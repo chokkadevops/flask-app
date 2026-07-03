@@ -4,8 +4,8 @@ pipeline {
     environment {
         APP_NAME = "flask-test-app"
         PORT = "5000"
-        // The API endpoint for your Windows Docker Desktop engine
-        DOCKER_API = "http://host.docker.internal:2375"
+        // Switched from host.docker.internal to the direct Docker network gateway IP
+        DOCKER_API = "http://172.17.0.1:2375"
     }
 
     stages {
@@ -26,8 +26,8 @@ pipeline {
             steps {
                 echo "Packaging workspace and sending to Windows Docker API..."
                 sh '''
-                    # Tar the current directory (app.py, Dockerfile, etc.)
-                    tar -cvf workspace.tar .
+                    # Tar the current directory safely excluding the tarball itself
+                    tar --exclude='workspace.tar' -cvf workspace.tar .
                     
                     # Submit the tarball directly to Docker Desktop's build engine API
                     curl -X POST -H "Content-Type: application/x-tar" \
