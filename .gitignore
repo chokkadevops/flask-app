@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+.env
+
+# Ignore all text and Word documents
+*.txt
+*.docx
+
+# Do NOT ignore requirements.txt
+!requirements.txt
+
