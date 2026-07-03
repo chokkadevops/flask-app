@@ -4,8 +4,8 @@ pipeline {
     environment {
         APP_NAME = "flask-test-app"
         PORT = "5000"
-        // Switched from host.docker.internal to the direct Docker network gateway IP
-        DOCKER_API = "http://172.17.0.1:2375"
+        // Switched to Docker's dedicated internal Windows host gateway IP
+        DOCKER_API = "http://192.168.65.254:2375"
     }
 
     stages {
