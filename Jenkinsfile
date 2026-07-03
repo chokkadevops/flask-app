@@ -4,8 +4,8 @@ pipeline {
     environment {
         APP_NAME = "flask-test-app"
         PORT = "5000"
-        // Explicitly enforces TCP routing for all Docker CLI commands in this pipeline
-        DOCKER_HOST = "tcp://host.docker.internal:2375"
+        // The API endpoint for your Windows Docker Desktop engine
+        DOCKER_API = "http://host.docker.internal:2375"
     }
 
     stages {
@@ -18,34 +18,52 @@ pipeline {
 
         stage('Validate Project Assets') {
             steps {
+                sh 'ls -la'
+            }
+        }
+
+        stage('Build Image via Docker API') {
+            steps {
+                echo "Packaging workspace and sending to Windows Docker API..."
                 sh '''
-                    echo "Checking structural components..."
-                    ls -la
+                    # Tar the current directory (app.py, Dockerfile, etc.)
+                    tar -cvf workspace.tar .
+                    
+                    # Submit the tarball directly to Docker Desktop's build engine API
+                    curl -X POST -H "Content-Type: application/x-tar" \
+                      --data-binary @workspace.tar \
+                      "${DOCKER_API}/build?t=${APP_NAME}:latest"
                 '''
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Deploy Container via Docker API') {
             steps {
-                echo "Building application Docker image using TCP daemon connection..."
-                // Builds the image directly on your Windows Docker Desktop engine
-                sh "docker build -t ${APP_NAME}:latest ."
-            }
-        }
-
-        stage('Deploy Application Container') {
-            steps {
-                echo "Deploying container to Windows host environment..."
+                echo "Managing container lifestyle via REST API..."
                 script {
-                    // Stop and remove old container instances safely if present
-                    sh '''
-                    if docker ps -a --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
-                        echo "Found existing container. Removing..."
-                        docker rm -f ${APP_NAME} || true
-                    fi
-                    '''
-                    // Spin up the freshly built image
-                    sh "docker run -d -p ${PORT}:${PORT} --name ${APP_NAME} ${APP_NAME}:latest"
+                    // 1. Stop and delete old container if it exists
+                    sh """
+                        curl -X POST "${DOCKER_API}/containers/${APP_NAME}/stop" || true
+                        curl -X DELETE "${DOCKER_API}/containers/${APP_NAME}" || true
+                    """
+
+                    // 2. Create the new container instance configuration via JSON payload
+                    sh """
+                        curl -X POST -H "Content-Type: application/json" \
+                          -d '{
+                                "Image": "${APP_NAME}:latest",
+                                "ExposedPorts": { "${PORT}/tcp": {} },
+                                "HostConfig": {
+                                    "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }] }
+                                }
+                              }' \
+                          "${DOCKER_API}/containers/create?name=${APP_NAME}"
+                    """
+
+                    // 3. Start the newly created container
+                    sh """
+                        curl -X POST "${DOCKER_API}/containers/${APP_NAME}/start"
+                    """
                 }
             }
         }
@@ -53,10 +71,10 @@ pipeline {
 
     post {
         success {
-            echo "Flask application pipeline executed and deployed perfectly!"
+            echo "Flask application successfully built and deployed via Windows Docker API!"
         }
         failure {
-            echo "Pipeline encountered an error during execution."
+            echo "Pipeline execution failed."
         }
     }
 }
