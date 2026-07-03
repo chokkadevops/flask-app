@@ -4,8 +4,6 @@ pipeline {
     environment {
         APP_NAME = "flask-test-app"
         PORT = "5000"
-        // Routes Jenkins commands to your Windows Docker engine network port
-        DOCKER_HOST = "tcp://host.docker.internal:2375"
     }
 
     stages {
