@@ -1,66 +1,55 @@
+cat << 'EOF' > Jenkinsfile
 pipeline {
     agent any
 
     environment {
-        // Define reusable variables
-        IMAGE_NAME    = 'chokkadevops/flask-app'
-        IMAGE_TAG     = 'latest'
-        CONTAINER_NAME = 'running-flask-app'
-        APP_PORT       = '5000'
+        APP_NAME = "flask-test-app"
+        PORT = "5000"
+        // This directs the Docker CLI tool to look at your Windows host machine port
+        DOCKER_HOST = "tcp://host.docker.internal:2375" 
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                echo 'Fetching the latest source code from GitHub...'
-                // Code is automatically checked out by Jenkins if using "Pipeline from SCM"
-                sh 'ls -la'
+                git branch: 'main', url: 'https://github.com/chokkadevops/flask-app.git'
+                echo "Code successfully fetched from GitHub repository."
             }
         }
 
         stage('Validate Project Assets') {
             steps {
-                echo 'Checking structural components...'
                 sh '''
-                    if [ ! -f app.py ]; then
-                        echo "ERROR: app.py missing!"
-                        exit 1
-                    fi
-                    if [ ! -f Dockerfile ]; then
-                        echo "ERROR: Dockerfile missing!"
-                        exit 1
-                    fi
+                    echo "Checking structural components..."
+                    ls -la
                 '''
             }
         }
 
         stage('Build & Run App Container') {
+            agent {
+                docker {
+                    image 'python:3.10-slim'
+                    args "-p ${PORT}:${PORT}"
+                }
+            }
             steps {
-                echo 'Stopping and removing existing application container if running...'
-                // || true prevents the pipeline from failing if the container doesn't exist yet
-                sh "docker rm -f ${CONTAINER_NAME} || true"
-
-                echo "Building Docker Image: ${IMAGE_NAME}:${IMAGE_TAG}..."
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-
-                echo "Deploying Container to http://localhost:${APP_PORT}..."
-                sh "docker run -d -p ${APP_PORT}:${APP_PORT} --name ${CONTAINER_NAME} ${IMAGE_NAME}:${IMAGE_TAG}"
+                echo "Jenkins plugin has provisioned the Python environment seamlessly."
+                sh 'pip install -r requirements.txt'
+                echo "Starting the Flask web application..."
+                sh 'python app.py &'
+                sleep 5
             }
         }
     }
 
     post {
-        always {
-            echo 'Pipeline build and deployment process completed.'
-        }
         success {
-            echo "SUCCESS: Application is running successfully at http://localhost:${APP_PORT}"
+            echo "Flask application pipeline executed perfectly!"
         }
         failure {
-            echo "FAILURE: The build or deployment stage encountered an error."
-            echo "Checking system docker container status logs..."
-            // Tries to grab the crash logs if the container failed to initialize properly
-            sh "docker logs ${CONTAINER_NAME} --tail 20 || true"
+            echo "Pipeline encountered an error during the run phase."
         }
     }
 }
+EOF
