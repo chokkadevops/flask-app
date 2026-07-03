@@ -26,12 +26,9 @@ pipeline {
         }
 
         stage('Build & Run App Container') {
-            agent {
-                docker {
-                   //  image 'python:3.10-slim'
-                    // // This dynamically maps port 5000 from your host machine to the container
-                    // args "-p ${PORT}:${PORT}"
-
+            steps {
+                script {
+                   
                     // The plugin handles building the Dockerfile automatically
                     def appImage = docker.build("chokkadevops/flask-app:latest")
             
