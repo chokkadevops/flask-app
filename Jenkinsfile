@@ -15,6 +15,10 @@ pipeline {
         PORT = "5000"
         // Switched to Docker's dedicated internal Windows host gateway IP
         DOCKER_API = "http://192.168.65.254:2375"
+
+        // Adding your new Docker tracking variables
+        IMAGE_NAME = "flask-test-app"
+        CONTAINER_NAME = "flask-test-app"
     }
 
     stages {
