@@ -35,7 +35,7 @@ def log_env_and_db():
 
 @app.route("/")
 def index():
-    return "Testing webhook automate process.."
+    return "Testing Github Jenkins automation process at 12:10.."
 
 if __name__ == "__main__":
     threading.Thread(target=log_env_and_db, daemon=True).start()
