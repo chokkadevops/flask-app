@@ -89,7 +89,7 @@ pipeline {
             echo "Appending container execution logs with timestamps..."
             // Appends the last 10 log lines to your ignored text file
             // Bypasses the restricted docker command binary entirely using curl
-            sh "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\" >> \${WORKSPACE}/flask_logoutput.txt"
+            sh "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\" >> ${WORKSPACE}/flask_logoutput.txt"
 
         }
         success {
