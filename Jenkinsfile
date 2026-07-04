@@ -82,14 +82,11 @@ pipeline {
         }
     }
 
-    
-   // Chokka - Adding log entry to monitor the application running inside the container.
+      
    post {
         always {
-            echo "Directing Docker Engine to write logs directly to the Windows host path..."
-            
-            // This command instructs Docker to mount your working directory and output the logs directly onto your Windows drive
-            sh "docker -H ${env.DOCKER_API} run --rm -v \$(pwd):/workspace alpine sh -c 'apk add --no-cache curl && curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\" >> /workspace/flask_logoutput.txt'"
+            echo "Pipeline build process completed."
+            // Cleaned up the failing permission commands
         }
 
         success {
