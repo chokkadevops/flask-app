@@ -35,7 +35,7 @@ def log_env_and_db():
 
 @app.route("/")
 def index():
-    return "Testing the flask app July 4,2026 9:28 .."
+    return "Testing the flask app July 4,2026 9:56 .."
 
 if __name__ == "__main__":
     threading.Thread(target=log_env_and_db, daemon=True).start()
