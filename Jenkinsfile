@@ -82,25 +82,10 @@ pipeline {
         }
     }
 
-    // Chokka - Adding log entry to monitor the application running inside the container.
+    
+   // Chokka - Adding log entry to monitor the application running inside the container.
 
-    // post {
-    //    always {
-    //        echo "Appending container execution logs with timestamps..."
-    //        // Appends the last 10 log lines to your ignored text file
-    //        // Bypasses the restricted docker command binary entirely using curl
-    //        sh "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\" >> ${WORKSPACE}/flask_logoutput.txt"
-
-    //    }
-    //    success {
-    //        echo "Flask application successfully built and deployed via Windows Docker API!"
-    //    }
-    //    failure {
-    //        echo "Pipeline execution failed."
-    //    }
-    // }
-
-    post {
+   post {
         always {
             echo "Fetching logs via API and generating file..."
             
