@@ -78,7 +78,14 @@ pipeline {
         }
     }
 
+    // Chokka - Adding log entry to monitor the application running inside the container.
+
     post {
+        always {
+            echo "Appending container execution logs with timestamps..."
+            // Appends the last 10 log lines to your ignored text file
+            sh "docker logs --tail 10 -t ${CONTAINER_NAME} >> flask_logoutput.txt"
+        }
         success {
             echo "Flask application successfully built and deployed via Windows Docker API!"
         }
