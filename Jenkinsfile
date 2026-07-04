@@ -84,21 +84,12 @@ pipeline {
 
     
    // Chokka - Adding log entry to monitor the application running inside the container.
-
    post {
         always {
-            echo "Fetching logs via API and generating file..."
+            echo "Directing Docker Engine to write logs directly to the Windows host path..."
             
-            // The script block allows variable declarations inside declarative pipelines
-            script {
-                def logEntries = sh(
-                    script: "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\"", 
-                    returnStdout: true
-                ).trim()
-                
-                // Writes the file cleanly into the workspace directory
-                writeFile file: "flask_logoutput.txt", text: logEntries
-            }
+            // This command instructs Docker to mount your working directory and output the logs directly onto your Windows drive
+            sh "docker -H ${env.DOCKER_API} run --rm -v \$(pwd):/workspace alpine sh -c 'apk add --no-cache curl && curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\" >> /workspace/flask_logoutput.txt'"
         }
 
         success {
