@@ -7,6 +7,7 @@ venv/
 # Ignore all text and Word documents
 *.txt
 *.docx
+*.sh
 
 # Do NOT ignore requirements.txt
 !requirements.txt
