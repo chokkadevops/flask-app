@@ -35,7 +35,7 @@ def log_env_and_db():
 
 @app.route("/")
 def index():
-    return "Testing webhook automation.."
+    return "Testing webhook automate process.."
 
 if __name__ == "__main__":
     threading.Thread(target=log_env_and_db, daemon=True).start()
