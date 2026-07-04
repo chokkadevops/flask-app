@@ -90,10 +90,7 @@ pipeline {
             // Appends the last 10 log lines to your ignored text file
             //sh "docker logs --tail 10 -t ${CONTAINER_NAME} >> flask_logoutput.txt"
 
-            // The addition of 'sudo' forces execution with root privileges over the docker socket
-            // sudo requires sudo installed in Jenkins.
-            //sh "sudo docker logs --tail 10 -t ${env.CONTAINER_NAME} >> flask_logoutput.txt"
-            sh "docker logs --tail 10 -t ${env.CONTAINER_NAME} >> ${WORKSPACE}/flask_output.txt"
+            sh "docker -H ${env.DOCKER_API} logs --tail 10 -t ${env.CONTAINER_NAME} >> flask_output.txt"
 
         }
         success {
