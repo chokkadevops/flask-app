@@ -1,3 +1,12 @@
+
+
+// Developer : Chokkalingam
+// Date : 04-07-2026
+// Jenkinsfile is for Jenkins pipeline Build and Deployment. 
+// We are using the IP defined by Docker Container to host the test project Flask inside the Docker container.
+
+
+
 pipeline {
     agent any
 
@@ -12,7 +21,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/chokkadevops/flask-app.git'
-                echo "Code successfully fetched from GitHub repository."
+                //echo "Code successfully fetched from GitHub repository."
             }
         }
 
@@ -24,7 +33,7 @@ pipeline {
 
         stage('Build Image via Docker API') {
             steps {
-                echo "Packaging workspace and sending to Windows Docker API..."
+                //echo "Packaging workspace and sending to Windows Docker API..."
                 sh '''
                     # Tar the current directory safely excluding the tarball itself
                     tar --exclude='workspace.tar' -cvf workspace.tar .
