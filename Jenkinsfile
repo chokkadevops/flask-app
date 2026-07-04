@@ -89,14 +89,16 @@ pipeline {
         always {
             echo "Fetching logs via API and generating file..."
             
-            // 1. Capture the log output directly into a Groovy variable
-            def logEntries = sh(
-                script: "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\"", 
-                returnStdout: true
-            ).trim()
-            
-            // 2. Use Jenkins native file writer to place it explicitly in the workspace
-            writeFile file: "flask_logoutput.txt", text: logEntries
+            // The script block allows variable declarations inside declarative pipelines
+            script {
+                def logEntries = sh(
+                    script: "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\"", 
+                    returnStdout: true
+                ).trim()
+                
+                // Writes the file cleanly into the workspace directory
+                writeFile file: "flask_logoutput.txt", text: logEntries
+            }
         }
 
         success {
@@ -107,4 +109,6 @@ pipeline {
             echo "Pipeline execution failed."
         }
     }
+
+   
 }
