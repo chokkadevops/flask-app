@@ -84,17 +84,40 @@ pipeline {
 
     // Chokka - Adding log entry to monitor the application running inside the container.
 
+    // post {
+    //    always {
+    //        echo "Appending container execution logs with timestamps..."
+    //        // Appends the last 10 log lines to your ignored text file
+    //        // Bypasses the restricted docker command binary entirely using curl
+    //        sh "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\" >> ${WORKSPACE}/flask_logoutput.txt"
+
+    //    }
+    //    success {
+    //        echo "Flask application successfully built and deployed via Windows Docker API!"
+    //    }
+    //    failure {
+    //        echo "Pipeline execution failed."
+    //    }
+    // }
+
     post {
         always {
-            echo "Appending container execution logs with timestamps..."
-            // Appends the last 10 log lines to your ignored text file
-            // Bypasses the restricted docker command binary entirely using curl
-            sh "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\" >> ${WORKSPACE}/flask_logoutput.txt"
-
+            echo "Fetching logs via API and generating file..."
+            
+            // 1. Capture the log output directly into a Groovy variable
+            def logEntries = sh(
+                script: "curl -s \"${env.DOCKER_API}/containers/${env.CONTAINER_NAME}/logs?stdout=true&stderr=true&tail=10&timestamps=true\"", 
+                returnStdout: true
+            ).trim()
+            
+            // 2. Use Jenkins native file writer to place it explicitly in the workspace
+            writeFile file: "flask_logoutput.txt", text: logEntries
         }
+
         success {
             echo "Flask application successfully built and deployed via Windows Docker API!"
         }
+
         failure {
             echo "Pipeline execution failed."
         }
