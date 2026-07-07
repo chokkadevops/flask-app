@@ -35,7 +35,7 @@ def log_env_and_db():
 
 @app.route("/")
 def index():
-    return "Testing on July 07,2026.."
+    return "Testing the webhook.."
 
 if __name__ == "__main__":
     threading.Thread(target=log_env_and_db, daemon=True).start()
