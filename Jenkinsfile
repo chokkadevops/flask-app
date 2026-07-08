@@ -85,23 +85,25 @@ pipeline {
      }
 
       
-//    post {
-//         always {
-//             echo "Pipeline build process completed."
-//             // Cleaned up the failing permission commands
-//         }
+    post {
+         always {
+             echo "Pipeline build process completed."
+             // Cleaned up the failing permission commands
+         }
 
-//         success {
-//             echo "Flask application successfully built and deployed via Windows Docker API!"
-//         }
+         success {
+             echo "Flask application successfully built and deployed via Windows Docker API!"
+         }
 
-//         failure {
-//             echo "Pipeline execution failed."
-//         }
-//     }
+         failure {
+             echo "Pipeline execution failed."
+         }
+     }
 
    
-// }
+ }
+
+
 
 
 // // Added by Chokka for choosing branch : main, dev01, dev02
