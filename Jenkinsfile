@@ -29,11 +29,14 @@ pipeline {
             }
         }
 
+        /* Added by chokka. Not required to validate the folder paths.
         stage('Validate Project Assets') {
             steps {
+                // Added by Chokka - To verify the list of files in the project workspace.
+                // This prints the files to the Jenkins log, but returns nothing to the pipeline memory
                 sh 'ls -la'
             }
-        }
+        }*/
 
         stage('Build Image via Docker API') {
             steps {
