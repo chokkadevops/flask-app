@@ -6,203 +6,171 @@
 // We are using the IP defined by Docker Container to host the test project Flask inside the Docker container.
 
 
-pipeline {
-     agent any
+// pipeline {
+//      agent any
 
-     environment {
-         APP_NAME = "flask-test-app"
-         PORT = "5000"
-         // Switched to Docker's dedicated internal Windows host gateway IP
-        DOCKER_API = "http://192.168.65.254:2375"
+//      environment {
+//          APP_NAME = "flask-test-app"
+//          PORT = "5000"
+//          // Switched to Docker's dedicated internal Windows host gateway IP
+//         DOCKER_API = "http://192.168.65.254:2375"
 
-         // Adding your new Docker tracking variables
-         IMAGE_NAME = "flask-test-app"
-         CONTAINER_NAME = "flask-test-app"
-     }
+//          // Adding your new Docker tracking variables
+//          IMAGE_NAME = "flask-test-app"
+//          CONTAINER_NAME = "flask-test-app"
+//      }
 
-     stages {
-         stage('Checkout Code') {
-             steps {
-                 git branch: 'main', url: 'https://github.com/chokkadevops/flask-app.git'
-                 //echo "Code successfully fetched from GitHub repository."
-             }
-         }
+//      stages {
+//          stage('Checkout Code') {
+//              steps {
+//                  git branch: 'main', url: 'https://github.com/chokkadevops/flask-app.git'
+//                  //echo "Code successfully fetched from GitHub repository."
+//              }
+//          }
 
-         /* Added by chokka. Not required to validate the folder paths.
-         stage('Validate Project Assets') {
-             steps {
-                 // Added by Chokka - To verify the list of files in the project workspace.
-                 // This prints the files to the Jenkins log, but returns nothing to the pipeline memory
-                 sh 'ls -la'
-             }
-         }*/
+//          /* Added by chokka. Not required to validate the folder paths.
+//          stage('Validate Project Assets') {
+//              steps {
+//                  // Added by Chokka - To verify the list of files in the project workspace.
+//                  // This prints the files to the Jenkins log, but returns nothing to the pipeline memory
+//                  sh 'ls -la'
+//              }
+//          }*/
 
          
-         // tar -- workspace.tar to zip all the files for deployment
-         // create verbose file
-         //Post : Jenkins to send data to the Docker server
-         // Attaches actual project to data binary workspace tar
-         // Container image is created via Docker API
-         stage('Build Image via Docker API') {
-             steps {
-                 //echo "Packaging workspace and sending to Windows Docker API..."
-                 sh '''
-                     # Tar the current directory safely excluding the tarball itself
-                     tar --exclude='workspace.tar' -cvf workspace.tar .
+//          // tar -- workspace.tar to zip all the files for deployment
+//          // create verbose file
+//          //Post : Jenkins to send data to the Docker server
+//          // Attaches actual project to data binary workspace tar
+//          // Container image is created via Docker API
+//          stage('Build Image via Docker API') {
+//              steps {
+//                  //echo "Packaging workspace and sending to Windows Docker API..."
+//                  sh '''
+//                      # Tar the current directory safely excluding the tarball itself
+//                      tar --exclude='workspace.tar' -cvf workspace.tar .
                     
-                     # Submit the tarball directly to Docker Desktop's build engine API
-                     curl -X POST -H "Content-Type: application/x-tar" \
-                       --data-binary @workspace.tar \
-                       "${DOCKER_API}/build?t=${APP_NAME}:latest"
-                 '''
-             }
-         }
+//                      # Submit the tarball directly to Docker Desktop's build engine API
+//                      curl -X POST -H "Content-Type: application/x-tar" \
+//                        --data-binary @workspace.tar \
+//                        "${DOCKER_API}/build?t=${APP_NAME}:latest"
+//                  '''
+//              }
+//          }
 
-         // POST DELETE = stop and delete the old container ( clean up )
-         // step : 2 container assemble all necessary steps
-         // writable file layer - log, container network
+//          // POST DELETE = stop and delete the old container ( clean up )
+//          // step : 2 container assemble all necessary steps
+//          // writable file layer - log, container network
 
-         stage('Deploy Container via Docker API') {
-             steps {
-                 echo "Managing container lifestyle via REST API..."
-                 script {
-                     // 1. Stop and delete old container if it exists
-                     sh """
-                         curl -X POST "${DOCKER_API}/containers/${APP_NAME}/stop" || true
-                         curl -X DELETE "${DOCKER_API}/containers/${APP_NAME}" || true
-                     """
+//          stage('Deploy Container via Docker API') {
+//              steps {
+//                  echo "Managing container lifestyle via REST API..."
+//                  script {
+//                      // 1. Stop and delete old container if it exists
+//                      sh """
+//                          curl -X POST "${DOCKER_API}/containers/${APP_NAME}/stop" || true
+//                          curl -X DELETE "${DOCKER_API}/containers/${APP_NAME}" || true
+//                      """
 
-                     // 2. Create the new container instance configuration via JSON payload
-                     sh """
-                         curl -X POST -H "Content-Type: application/json" \
-                           -d '{
-                                 "Image": "${APP_NAME}:latest",
-                                 "ExposedPorts": { "${PORT}/tcp": {} },
-                                 "HostConfig": {
-                                     "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }] }
-                                 }
-                               }' \
-                           "${DOCKER_API}/containers/create?name=${APP_NAME}"
-                     """
+//                      // 2. Create the new container instance configuration via JSON payload
+//                      sh """
+//                          curl -X POST -H "Content-Type: application/json" \
+//                            -d '{
+//                                  "Image": "${APP_NAME}:latest",
+//                                  "ExposedPorts": { "${PORT}/tcp": {} },
+//                                  "HostConfig": {
+//                                      "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }] }
+//                                  }
+//                                }' \
+//                            "${DOCKER_API}/containers/create?name=${APP_NAME}"
+//                      """
 
-                     // 3. Start the newly created container
-                     sh """
-                         curl -X POST "${DOCKER_API}/containers/${APP_NAME}/start"
-                     """
-                 }
-             }
-         }
-     }
+//                      // 3. Start the newly created container
+//                      sh """
+//                          curl -X POST "${DOCKER_API}/containers/${APP_NAME}/start"
+//                      """
+//                  }
+//              }
+//          }
+//      }
 
       
-    post {
-         always {
-             echo "Pipeline build process completed."
-             // Cleaned up the failing permission commands
-         }
+//     post {
+//          always {
+//              echo "Pipeline build process completed."
+//              // Cleaned up the failing permission commands
+//          }
 
-         success {
-             echo "Flask application successfully built and deployed via Windows Docker API!"
-         }
+//          success {
+//              echo "Flask application successfully built and deployed via Windows Docker API!"
+//          }
 
-         failure {
-             echo "Pipeline execution failed."
-         }
-     }
+//          failure {
+//              echo "Pipeline execution failed."
+//          }
+//      }
 
    
- }
+//  }
 
 
 
 
-// // Added by Chokka for choosing branch : main, dev01, dev02
+pipeline {
+    agent any
 
-// pipeline {
-//     agent any
+    environment {
+        IMAGE_NAME = "flask-test-app"
+        CONTAINER_NAME = "flask-test-app"
+        HOST_PORT = "5000" 
+    }
 
-//     environment {
-//         // Automatically appends the branch name to prevent overwriting containers/images
-//         // e.g., flask-test-app-main, flask-test-app-dev01
-//         APP_NAME        = "flask-test-app-${env.BRANCH_NAME.toLowerCase()}"
-//         CONTAINER_NAME  = "flask-test-app-${env.BRANCH_NAME.toLowerCase()}"
-        
-//         // Dynamic image tagging based on branch name instead of just 'latest'
-//         IMAGE_TAG       = "${env.BRANCH_NAME.toLowerCase()}"
+    // git branch: 'main', url: https://github.com/chokkadevops/flask-app.git
+    // choose specific branch - main or dev. pulls the code from exact branch as  initiated.
+    // safer as compared to hardcoding the git repo link
 
-//         // Switched to Docker's dedicated internal Windows host gateway IP
-//         DOCKER_API      = "http://192.168.65.254:2375"
+    stages {
+        stage('Checkout Source') {
+            steps {
+                checkout scm
+            }
+        }
 
-//         // Dynamic Port Routing: Assigns a unique port based on the branch so they don't collide
-//         PORT = "${env.BRANCH_NAME == 'main' ? '5000' : env.BRANCH_NAME == 'dev01' ? '5001' : '5002'}"
-//     }
+        // Docker image is created. 
 
-//     stages {
-//         stage('Checkout Code') {
-//             steps {
-//                 // CRITICAL FIX: Automatically checks out whichever branch triggered the pipeline
-//                 checkout scm
-//                 echo "Successfully fetched code from branch: ${env.BRANCH_NAME}"
-//             }
-//         }
+        stage('Docker Build (CI)') {
+            steps {
+                echo "Starting Docker build process..."
+                // This triggers the internal 'npm run build' inside the multi-stage Dockerfile
+                sh "docker build -t ${IMAGE_NAME}:latest ."
+            }
+        }
 
-//         stage('Build Image via Docker API') {
-//             steps {
-//                 sh '''
-//                     # Tar the current directory safely excluding the tarball itself
-//                     tar --exclude='workspace.tar' -cvf workspace.tar .
-                    
-//                     # Submit the tarball directly to Docker Desktop's build engine API
-//                     curl -X POST -H "Content-Type: application/x-tar" \
-//                       --data-binary @workspace.tar \
-//                       "${DOCKER_API}/build?t=${APP_NAME}:${IMAGE_TAG}"
-//                 '''
-//             }
-//         }
+        // Docker 
 
-//         stage('Deploy Container via Docker API') {
-//             steps {
-//                 echo "Managing container lifestyle for ${APP_NAME} on port ${PORT}..."
-//                 script {
-//                     // 1. Stop and delete old branch container if it exists
-//                     sh """
-//                         curl -X POST "${DOCKER_API}/containers/${CONTAINER_NAME}/stop" || true
-//                         curl -X DELETE "${DOCKER_API}/containers/${CONTAINER_NAME}" || true
-//                     """
+        stage('Docker Deploy (CD)') {
+            steps {
+                echo "Deploying built image to runtime container..."
+                script {
+                    // Gracefully handle removing existing container if it exists
+                    def status = sh(script: "docker ps -a -q -f name=${CONTAINER_NAME}", returnStdout: true).trim()
+                    if (status) {
+                        echo "Existing container found. Stopping and removing..."
+                        sh "docker rm -f ${CONTAINER_NAME}"
+                    }
+                }
+                // Run the newly built container mapping your local port to Nginx port 80
+                sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:80 ${IMAGE_NAME}:latest"
+            }
+        }
+    }
 
-//                     // 2. Create the new container instance configuration via JSON payload
-//                     sh """
-//                         curl -X POST -H "Content-Type: application/json" \
-//                           -d '{
-//                                 "Image": "${APP_NAME}:${IMAGE_TAG}",
-//                                 "ExposedPorts": { "5000/tcp": {} },
-//                                 "HostConfig": {
-//                                     "PortBindings": { "5000/tcp": [{ "HostPort": "${PORT}" }] }
-//                                 }
-//                               }' \
-//                           "${DOCKER_API}/containers/create?name=${CONTAINER_NAME}"
-//                     """
-
-//                     // 3. Start the newly created container
-//                     sh """
-//                         curl -X POST "${DOCKER_API}/containers/${CONTAINER_NAME}/start"
-//                     """
-//                 }
-//             }
-//         }
-//     }
-
-//     post {
-//         always {
-//             echo "Pipeline build process completed for branch: ${env.BRANCH_NAME}."
-//         }
-
-//         success {
-//             echo "Flask application successfully built and deployed to port ${PORT}!"
-//         }
-
-//         failure {
-//             echo "Pipeline execution failed for branch: ${env.BRANCH_NAME}."
-//         }
-//     }
-// }
+    post {
+        success {
+            echo "CI/CD Pipeline executed successfully. App live at http://localhost:${HOST_PORT}"
+        }
+        failure {
+            echo "Pipeline failed. Check stage logs for details."
+        }
+    }
+}
