@@ -35,7 +35,7 @@ def log_env_and_db():
 
 @app.route("/")
 def index():
-    return "Testing the Git automation on July 08,2026.."
+    return "Testing the main branch"
 
 if __name__ == "__main__":
     threading.Thread(target=log_env_and_db, daemon=True).start()
