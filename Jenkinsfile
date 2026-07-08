@@ -160,7 +160,8 @@ pipeline {
                     }
                 }
                 // Run the newly built container mapping your local port to Nginx port 80
-                sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:80 ${IMAGE_NAME}:latest"
+                // Change the -p mapping from :80 to :${HOST_PORT}
+                sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:${HOST_PORT} ${IMAGE_NAME}:latest"
             }
         }
     }
