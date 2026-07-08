@@ -37,6 +37,12 @@ pipeline {
              }
          }*/
 
+         
+         // tar -- workspace.tar to zip all the files for deployment
+         // create verbose file
+         //Post : Jenkins to send data to the Docker server
+         // Attaches actual project to data binary workspace tar
+         // Container image is created via Docker API
          stage('Build Image via Docker API') {
              steps {
                  //echo "Packaging workspace and sending to Windows Docker API..."
@@ -51,6 +57,11 @@ pipeline {
                  '''
              }
          }
+
+         // POST DELETE = stop and delete the old container ( clean up )
+         // step : 2 container assemble all necessary steps
+         // writable file layer - log
+         // container network
 
          stage('Deploy Container via Docker API') {
              steps {
