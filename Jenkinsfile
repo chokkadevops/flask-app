@@ -122,7 +122,7 @@ pipeline {
     environment {
         IMAGE_NAME = "flask-test-app"
         CONTAINER_NAME = "flask-test-app"
-        HOST_PORT = "8082" 
+        HOST_PORT = "5000" 
     }
 
     // git branch: 'main', url: https://github.com/chokkadevops/flask-app.git
