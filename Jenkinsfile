@@ -60,8 +60,7 @@ pipeline {
 
          // POST DELETE = stop and delete the old container ( clean up )
          // step : 2 container assemble all necessary steps
-         // writable file layer - log
-         // container network
+         // writable file layer - log, container network
 
          stage('Deploy Container via Docker API') {
              steps {
