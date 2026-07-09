@@ -57,12 +57,5 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            echo "CI/CD Pipeline executed successfully. App live at http://localhost:${HOST_PORT}"
-        }
-        failure {
-            echo "Pipeline failed. Check stage logs for details."
-        }
-    }
+    
 }
