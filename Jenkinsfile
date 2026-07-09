@@ -32,11 +32,12 @@ pipeline {
             steps {
                 echo "Starting Docker build process..."
                 // This triggers the internal 'npm run build' inside the multi-stage Dockerfile
+                // -t tag to give a valid name for docker image file instead of assigned id.
                 sh "docker build -t ${IMAGE_NAME}:latest ."
             }
         }
 
-        // Docker 
+        // Docker assemble files layer by layer to the image.
 
         stage('Docker Deploy (CD)') {
             steps {

@@ -35,7 +35,7 @@ def log_env_and_db():
 
 @app.route("/")
 def index():
-    return "Configuring common Jenkinsfile for build and deployment"
+    return "Testing webhook automation"
 
 if __name__ == "__main__":
     threading.Thread(target=log_env_and_db, daemon=True).start()
