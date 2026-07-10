@@ -33,7 +33,7 @@ pipeline {
                 echo "Starting Docker build process..."
                 // This triggers the internal 'npm run build' inside the multi-stage Dockerfile
                 // -t tag to give a valid name for docker image file instead of assigned id.
-                sh "docker build -t ${IMAGE_NAME}:latest ."
+                sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
             }
         }
 
@@ -52,7 +52,7 @@ pipeline {
                 }
                 // Run the newly built container mapping your local port to Nginx port 80
                 // Change the -p mapping from :80 to :${HOST_PORT}
-                sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:${HOST_PORT} ${IMAGE_NAME}:latest"
+                sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:${HOST_PORT} ${IMAGE_NAME}:${env.BUILD_NUMBER}"
             }
         }
     }
